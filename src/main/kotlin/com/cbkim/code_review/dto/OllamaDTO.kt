@@ -6,3 +6,7 @@ data class OllamaGenerateRequestDTO (
     val stream: Boolean = false,
     val options: Map<String, Any>? = null
 )
+
+class OllamaGenerateResponseDTO (
+    val response: String
+)

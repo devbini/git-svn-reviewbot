@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.bodyToFlux
 import reactor.core.publisher.Mono
 
 @Service
-class GitLabApiClientService(
+class GitLabReviewService(
     private val webClientBuilder: WebClient.Builder,
     private val codeReviewService: CodeReviewService,
     @Value("\${gitlab.baseUrl}") private val gitlabBaseUrl: String,

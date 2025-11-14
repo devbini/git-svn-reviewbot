@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
 @Service
-class OllamaService(
+class OllamaReviewService(
     private val webClientBuilder: WebClient.Builder,
     @Value("\${ollama.baseUrl}") private val ollamaBaseUrl: String,
     @Value("\${ollama.model}") private val ollamaModel: String
