@@ -1,5 +1,5 @@
 package com.cbkim.code_review.dto
 
-class OllamaGenerateResponse (
+class OllamaGenerateResponseDTO (
     val response: String
 )

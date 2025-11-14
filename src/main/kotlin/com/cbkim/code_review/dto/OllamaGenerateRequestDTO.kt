@@ -1,6 +1,6 @@
 package com.cbkim.code_review.dto
 
-data class OllamaGenerateRequest (
+data class OllamaGenerateRequestDTO (
     val model: String,
     val prompt: String,
     val stream: Boolean = false,

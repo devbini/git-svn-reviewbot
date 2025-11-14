@@ -1,7 +1,7 @@
 package com.cbkim.code_review.service
 
-import com.cbkim.code_review.dto.OllamaGenerateRequest
-import com.cbkim.code_review.dto.OllamaGenerateResponse
+import com.cbkim.code_review.dto.OllamaGenerateRequestDTO
+import com.cbkim.code_review.dto.OllamaGenerateResponseDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -16,7 +16,7 @@ class OllamaService(
     private val webClient = webClientBuilder.baseUrl(ollamaBaseUrl).build()
 
     fun generateResponse(prompt: String): Mono<String> {
-        val request = OllamaGenerateRequest(
+        val request = OllamaGenerateRequestDTO(
             model = ollamaModel,
             prompt = prompt,
             stream = false
@@ -26,7 +26,7 @@ class OllamaService(
             .uri("/api/generate")
             .bodyValue(request)
             .retrieve()
-            .bodyToMono(OllamaGenerateResponse::class.java)
+            .bodyToMono(OllamaGenerateResponseDTO::class.java)
             .map { it.response }
     }
 }
