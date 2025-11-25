@@ -1,7 +1,13 @@
 # 🤖 AI Code Review Bot (GitLab & SVN)
-Local LLM(Ollama)을 활용하여 GitLab Merge Request와 SVN Commit을 자동으로 분석하고 코드 리뷰를 수행하는 봇입니다.  
-외부 API를 사용하지 않아 보안이 중요한 내부망 환경에서도 안전하게 동작하며,  
-최신 Git 환경과 Legacy SVN 환경을 동시에 지원하는 하이브리드 아키텍처를 갖추고 있습니다.  
+이 프로젝트는 폐쇄망 환경이나 레거시 SVN 환경에서 AI 기반의 자동 코드 리뷰를 제공하기 위해 개발되었습니다.
+GitLab과 SVN의 변경 사항을 감지하고, 로컬에 구축된 LLM(Ollama)을 사용하여 코드 리뷰를 수행합니다.
+
+---
+
+## 배경
+
+보안상의 이유로 외부 인터넷 접속이 제한되거나, 클라우드 기반의 AI 코딩 어시스턴트(GitHub Copilot 등)를 사용할 수 없는 환경을 위한 솔루션입니다.
+온프레미스 환경에서 동작하는 GitLab, SVN 서버와 연동되며, 로컬 LLM을 활용하여 데이터 유출 걱정 없이 코드 리뷰를 받을 수 있습니다.
 
 ---
 
@@ -10,7 +16,7 @@ Local LLM(Ollama)을 활용하여 GitLab Merge Request와 SVN Commit을 자동�
 - Framework: Spring Boot 3 (WebFlux)
 - VCS Libraries:
   - GitLab API (WebClient)
-- SVNKit (Subversion)
+  - SVNKit (Subversion)
 - AI Engine: Ollama
 - Infrastructure: Docker & Docker Compose
 
