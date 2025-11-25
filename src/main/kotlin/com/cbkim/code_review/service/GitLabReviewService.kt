@@ -47,49 +47,44 @@ class GitLabReviewService(
             .bodyToMono(GitLabCommentResponse::class.java)
     }
 
-    fun startCodeReview(eventHeader: String, event: GitLabWebhookMergeRequestEvent): Mono<ResponseEntity<String>> {
+    fun startCodeReview(eventHeader: String, event: GitLabWebhookMergeRequestEvent) {
         if (eventHeader != "Merge Request Hook") {
             logger.info("MR이 아님 : $eventHeader")
-            return Mono.just(ResponseEntity("Not a MR", HttpStatus.OK))
+            return
         }
 
         if (event.objectAttributes.action == "open" || event.objectAttributes.action == "update") {
-            logger.info("리뷰 대상 : ${event.objectAttributes.url}")
+            logger.info("리뷰 요청 수신 : ${event.objectAttributes.url}")
 
             val projectId = event.project.id
             val mrIid = event.objectAttributes.iid
             val mrTitle = event.objectAttributes.title
 
-            return getMergeRequestDiff(projectId, mrIid)
+            getMergeRequestDiff(projectId, mrIid)
                 .flatMap { diffContent ->
                     if (diffContent.isBlank()) {
                         logger.info("Diff 못 찾음 : $mrTitle")
-                        return@flatMap Mono.just("No diff.")
+                        Mono.empty()
+                    } else {
+                        logger.info("Diff 확보 완료. AI 분석 시작... ($mrTitle)")
+
+                        codeReviewService.requestReview(mrTitle, diffContent)
+                            .flatMap { reviewComment ->
+                                logger.info("AI 분석 완료. GitLab 댓글 등록 중...")
+                                addMergeRequestComment(projectId, mrIid, reviewComment)
+                            }
                     }
-
-                    logger.info("Fetched diff for MR ($mrTitle):\n$diffContent")
-
-                    codeReviewService.requestReview(mrTitle, diffContent)
-                        .flatMap { reviewComment ->
-                            logger.info("리뷰 생성 : ($mrTitle):\n$reviewComment")
-                            addMergeRequestComment(projectId, mrIid, reviewComment)
-                                .map { "리뷰 생성 성공 MR: $mrTitle" }
-                        }
-                        .onErrorResume { e ->
-                            logger.error("리뷰 생성 실패 MR : ($mrTitle): ${e.message}", e)
-                            Mono.just("Error review: ${e.message}")
-                        }
                 }
-                .map { responseBody ->
-                    ResponseEntity(responseBody, HttpStatus.OK)
-                }
-                .onErrorResume { e ->
-                    logger.error("Error Webhook : ${e.message}", e)
-                    Mono.just(ResponseEntity("Error webhook: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR))
-                }
+                .subscribe(
+                    {
+                        logger.info("리뷰 최종 완료 : $mrTitle")
+                    },
+                    { e ->
+                        logger.error("리뷰 에러 발생 : ${e.message}", e)
+                    }
+                )
         } else {
             logger.info("무시 : ${event.objectAttributes.action}")
-            return Mono.just(ResponseEntity("Ignoring", HttpStatus.OK))
         }
     }
 }

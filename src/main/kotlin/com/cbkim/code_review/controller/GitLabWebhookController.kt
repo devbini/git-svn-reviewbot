@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
 
 @RestController
 class GitLabWebhookController(
@@ -18,7 +17,8 @@ class GitLabWebhookController(
     fun handleGitLabWebhook(
         @RequestHeader("X-Gitlab-Event") eventHeader: String,
         @RequestBody event: GitLabWebhookMergeRequestEvent
-    ): Mono<ResponseEntity<String>> {
-        return gitLabApiClient.startCodeReview(eventHeader, event);
+    ): ResponseEntity<String> {
+        gitLabApiClient.startCodeReview(eventHeader, event)
+        return ResponseEntity.ok("Processing start")
     }
 }

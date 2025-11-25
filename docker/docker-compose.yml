@@ -29,6 +29,39 @@ services:
       - '3690:3690' # SVN 프로토콜 포트
     volumes:
       - './docker-data/svn:/var/opt/svn'
+      - '../svn_setup/linux/post-commit:/tmp/post-commit'
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        # curl 설치
+        if ! command -v curl > /dev/null; then
+            apk add --no-cache curl
+        fi
+        
+        REPO_NAME="example-svn"
+        BASE_DIR="/var/opt/svn"
+        REPO_PATH="$$BASE_DIR/$$REPO_NAME"
+        
+        if [ -d "$$BASE_DIR/conf" ]; then
+           exit 1
+        fi
+        
+        if [ ! -d "$$REPO_PATH" ]; then
+            svnadmin create "$$REPO_PATH"
+            CONF="$$REPO_PATH/conf/svnserve.conf"
+            sed -i 's/# anon-access = read/anon-access = write/' "$$CONF"
+        fi
+        
+        # 훅 설정
+        HOOK_PATH="$$REPO_PATH/hooks/post-commit"
+        if [ -f "/tmp/post-commit" ]; then
+            cp /tmp/post-commit "$$HOOK_PATH"
+            chmod +x "$$HOOK_PATH"        
+            sed -i 's/\r$$//' "$$HOOK_PATH"
+        fi
+        
+        /usr/bin/svnserve -d --foreground -r /var/opt/svn
 
   ollama:
     image: ollama/ollama:latest
