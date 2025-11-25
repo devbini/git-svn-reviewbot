@@ -38,3 +38,9 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+src/main/resources/*.yml
+src/main/resources/*.properties
+.env
+
+docker/docker-data/*
