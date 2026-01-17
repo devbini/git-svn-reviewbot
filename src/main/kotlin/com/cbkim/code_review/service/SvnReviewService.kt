@@ -18,10 +18,10 @@ import java.nio.file.Paths
 class SvnReviewService(
     private val codeReviewService: CodeReviewService,
 
-    @Value("\${review.storage.path:C:/code-review}")
+    @Value("\${svn.path}")
     private val storagePath: String,
 
-    @Value("\${svn.server.url:svn://localhost:3690}")
+    @Value("\${svn.baseUrl}")
     private val svnServerBaseUrl: String
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
