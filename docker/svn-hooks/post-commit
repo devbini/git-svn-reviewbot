@@ -6,30 +6,21 @@ REV="$2"
 
 # 2. svnlook 경로
 SVNLOOK=/usr/bin/svnlook
-
-# 3. 로그 메시지 및 정보 추출
 AUTHOR=$($SVNLOOK author -r "$REV" "$REPOS")
 LOG_MSG=$($SVNLOOK log -r "$REV" "$REPOS")
 
-# 4. [review] 키워드 검사
-echo "$LOG_MSG" | grep -F "[review]" > /dev/null
-if [ $? -ne 0 ]; then
-    echo "No [review] found."
-    exit 0
-fi
-
-# 5. JSON 페이로드 생성
+# 3. JSON 페이로드 생성
 JSON_DATA=$(cat <<EOF
 {
   "repo": "$REPOS",
   "revision": "$REV",
   "author": "$AUTHOR",
-  "message": "Check SVN Server for details"
+  "message": "$LOG_MSG"
 }
 EOF
 )
 
-# 6. Webhook 전송
-curl -X POST http://host.docker.internal:8080/webhook/svn \
+# 4. 리뷰 봇 서버로 전송 (서버 IP/포트를 환경에 맞게 수정 해 주세요.)
+curl -X POST http://review-bot:8080/webhook/svn \
      -H "Content-Type: application/json" \
      -d "$JSON_DATA"

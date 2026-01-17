@@ -29,7 +29,7 @@ services:
       - '3690:3690' # SVN 프로토콜 포트
     volumes:
       - './docker-data/svn:/var/opt/svn'
-      - '../svn_setup/linux/post-commit:/tmp/post-commit'
+      - './svn-hooks/post-commit:/tmp/post-commit'
     entrypoint:
       - /bin/sh
       - -c
@@ -71,3 +71,20 @@ services:
       - "11434:11434"
     volumes:
       - ./docker-data/ollama:/root/.ollama
+
+  review-bot:
+    image: chanbeen/internal-code-review-bot:latest
+    container_name: review-bot
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_BASE_URL=http://review-bot:8080
+      - OLLAMA_BASE_URL=http://ollama-server:11434
+      - OLLAMA_MODEL=llama3
+      - SVN_BASE_URL=svn://svn-server:3690
+      - GITLAB_BASE_URL=http://gitlab-server:8929
+      - GITLAB_PRIVATE_TOKEN=${GITLAB_TOKEN}
+    depends_on:
+      - ollama
+      - svn-server

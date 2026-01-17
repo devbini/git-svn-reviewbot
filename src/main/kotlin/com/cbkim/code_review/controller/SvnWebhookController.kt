@@ -17,6 +17,7 @@ import java.io.File // File import 확인
 @RestController
 class SvnWebhookController(
     private val svnReviewService: SvnReviewService,
+    @Value("\${svn.keyword}") private val keyword: String,
     @Value("\${server.base-url:http://localhost:8080}")
     private val baseUrl: String
 ) {
@@ -25,6 +26,13 @@ class SvnWebhookController(
     // SVN에서 hook을 통해 실행 할 API 엔드포인트
     @PostMapping("/webhook/svn")
     fun handleSvnWebhook(@RequestBody request: SvnWebhookRequest): Mono<ResponseEntity<SvnWebhookResponse>> {
+        if (!request.message.contains(keyword)) {
+            return Mono.just(ResponseEntity.ok(SvnWebhookResponse(
+                reviewId = request.revision,
+                reviewUrl = "",
+                message = "Skip"
+            )));
+        }
 
         svnReviewService.processSvnReviewAsync(request)
 
