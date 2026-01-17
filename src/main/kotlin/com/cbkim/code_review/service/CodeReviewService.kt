@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 @Service
 class CodeReviewService(
     private val ollamaService: OllamaReviewService,
-    @Value("\${review.prompt.instruction}") private val reviewInstruction: String
+    @Value("\${review.prompt}") private val reviewInstruction: String
 ) {
     fun requestReview(title: String, diffContent: String): Mono<String> {
         if (diffContent.isBlank()) {
